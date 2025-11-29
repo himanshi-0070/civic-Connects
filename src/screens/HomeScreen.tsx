@@ -5,16 +5,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
-  Animated,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Header } from '../components/Header';
-import { CATEGORIES } from '../utils/helpers';
-import { getCurrentLocation } from '../services/location';
 import { RootStackParamList } from '../types/navigation';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -29,140 +25,47 @@ interface CategoryItemProps {
   onPress: () => void;
 }
 
+const CATEGORIES = [
+  'Waste Management',
+  'Road Damage',
+  'Street Light',
+  'Water Supply',
+  'Sanitation',
+  'Sewage and Drainage',
+];
+
 const CategoryItem = ({ category, index, totalItems, onPress }: CategoryItemProps) => {
-  const slideAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(1);
-
-  useEffect(() => {
-    const isLeftSide = index % 2 === 0;
-    Animated.timing(slideAnim, {
-      toValue: 1,
-      duration: 600,
-      delay: index * 100,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  const isLeftSide = index % 2 === 0;
-  const slideDistance = isLeftSide ? -100 : 100;
-
-  const handlePressIn = () => {
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const handlePress = () => {
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 50,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-    ]).start(() => {
-      onPress();
-    });
-  };
-
   return (
-    <Animated.View
-      style={[
-        styles.categoryButtonContainer,
-        {
-          transform: [
-            {
-              translateX: slideAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [slideDistance, 0],
-              }),
-            },
-            { scale: scaleAnim },
-          ],
-        },
-      ]}
-    >
+    <View style={styles.categoryButtonContainer}>
       <TouchableOpacity
         style={styles.categoryButton}
-        onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={0.9}
+        onPress={onPress}
+        activeOpacity={0.7}
       >
         <Text style={styles.categoryText}>{category}</Text>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 };
 
 export const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { colors, isDark } = useTheme();
-  const [location, setLocation] = useState<string | null>(null);
-  const reportButtonScale = new Animated.Value(1);
-
-  useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        const currentLocation = await getCurrentLocation();
-        setLocation(currentLocation.address);
-      } catch (error) {
-        console.error('Error fetching location:', error);
-        setLocation('Location not available');
-      }
-    };
-
-    fetchLocation();
-  }, []);
-
-  const handleReportButtonPressIn = () => {
-    Animated.timing(reportButtonScale, {
-      toValue: 0.95,
-      duration: 150,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handleReportButtonPressOut = () => {
-    Animated.timing(reportButtonScale, {
-      toValue: 1,
-      duration: 150,
-      useNativeDriver: true,
-    }).start();
-  };
+  const { isDark } = useTheme();
+  const [location, setLocation] = useState<string | null>('Current Location');
 
   const handleReportButtonPress = () => {
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(reportButtonScale, {
-          toValue: 50,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
-    ]).start(() => {
-      navigation.navigate('ReportIssue', {});
-    });
+    navigation.navigate('ReportIssue', { category: 'Other' });
+  };
+
+  const handleCheckNearbyPress = () => {
+    navigation.navigate('NearbyIssues');
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#1a1a1a' : '#fff' }]}>
-      <Header />
+      <View style={[styles.header, { backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5' }]}>
+        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#333' }]}>CivicConnect</Text>
+      </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.locationContainer}>
@@ -172,23 +75,27 @@ export const HomeScreen = () => {
           </Text>
         </View>
 
-        <Animated.View
-          style={[
-            styles.reportButtonContainer,
-            { transform: [{ scale: reportButtonScale }] },
-          ]}
-        >
+        <View style={styles.reportButtonContainer}>
           <TouchableOpacity
             style={styles.reportButton}
             onPress={handleReportButtonPress}
-            onPressIn={handleReportButtonPressIn}
-            onPressOut={handleReportButtonPressOut}
-            activeOpacity={0.9}
+            activeOpacity={0.7}
           >
             <MaterialIcons name="add-circle" size={24} color="#fff" style={{ marginRight: 8 }} />
             <Text style={styles.reportButtonText}>Report a New Issue</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
+
+        <View style={styles.checkNearbyButtonContainer}>
+          <TouchableOpacity
+            style={styles.checkNearbyButton}
+            onPress={handleCheckNearbyPress}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="map" size={24} color="#fff" style={{ marginRight: 8 }} />
+            <Text style={styles.checkNearbyButtonText}>Check Nearby Issues</Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={[styles.categoriesTitle, { color: isDark ? '#aaa' : '#666' }]}>
           or select a category
@@ -214,6 +121,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#f5f5f5',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
   content: {
     flex: 1,
@@ -245,6 +162,26 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   reportButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  checkNearbyButtonContainer: {
+    marginBottom: 16,
+  },
+  checkNearbyButton: {
+    backgroundColor: '#34C759',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    shadowColor: '#34C759',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  checkNearbyButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
