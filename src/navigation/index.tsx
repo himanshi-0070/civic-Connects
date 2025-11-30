@@ -80,9 +80,15 @@ export const Navigation = () => {
               component={ReportIssueScreen}
               options={{ title: 'Report Issue' }}
             />
+            <Stack.Screen
+              name="NearbyIssues"
+              component={NearbyIssuesScreen}
+              options={{ title: 'Nearby Issues' }}
+            />
           </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
+
 };
