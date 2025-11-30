@@ -27,7 +27,7 @@ export const colors = {
   dark: {
     primary: '#90CAF9',
     secondary: '#64B5F6',
-    background: '#121212',
+    background: '#242424',
     surface: '#1E1E1E',
     text: '#FFFFFF',
     textSecondary: '#B0B0B0',
@@ -92,4 +92,5 @@ export const useTheme = () => {
     ...context,
     colors: colors[context.theme],
   };
+
 };
