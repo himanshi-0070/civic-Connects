@@ -97,7 +97,7 @@ export const ProfileScreen = () => {
         </TouchableOpacity>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Full Name</Text>
+          <Text style={[styles.label, { color: isDark ? colors.textSecondary : colors.text }]}>Full Name</Text>
           <TextInput
             style={[
               styles.input,
@@ -112,10 +112,10 @@ export const ProfileScreen = () => {
               setProfileData({ ...profileData, name: text })
             }
             placeholder="Enter your full name"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={isDark ? colors.text : colors.textSecondary}
           />
 
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Phone Number</Text>
+          <Text style={[styles.label, { color: isDark ? colors.textSecondary : colors.text }]}>Phone Number</Text>
           <TextInput
             style={styles.input}
             value={profileData.phone}
@@ -127,7 +127,7 @@ export const ProfileScreen = () => {
             editable={false}
           />
 
-          <Text style={styles.label}>Email (Optional)</Text>
+          <Text style={[styles.label, { color: isDark ? colors.textSecondary : colors.text }]}>Email (Optional)</Text>
           <TextInput
             style={styles.input}
             value={profileData.email}
